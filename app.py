@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, after_this_request
 import yt_dlp
 import traceback
 import os
@@ -22,19 +22,25 @@ def download_video():
     try:
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',
-            'outtmpl': 'downloads/video.%(ext)s',  # Descargar en la carpeta 'downloads'
+            'outtmpl': 'downloads/video.%(ext)s',
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
-                'preferredformat': 'mp4',
+                'preferedformat': 'mp4',  # Asegúrate de usar la ortografía correcta
             }],
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
             filename = os.path.join('downloads', 'video.mp4')  # Apuntar al archivo convertido en 'downloads/'
 
-        response = send_file(filename, as_attachment=True)
-        os.remove(filename)  # Elimina el archivo después de enviarlo
-        return response
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(filename)
+            except Exception as error:
+                app.logger.error(f"Error al eliminar el archivo: {error}")
+            return response
+
+        return send_file(filename, as_attachment=True)
     except Exception as e:
         return f"Ocurrió un error al descargar el video: {traceback.format_exc()}", 500
 
@@ -47,7 +53,7 @@ def download_audio():
     try:
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': 'downloads/audio.%(ext)s',  # Descargar en la carpeta 'downloads'
+            'outtmpl': 'downloads/audio.%(ext)s',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -58,9 +64,15 @@ def download_audio():
             info_dict = ydl.extract_info(video_url, download=True)
             filename = os.path.join('downloads', 'audio.mp3')  # Apuntar al archivo convertido en 'downloads/'
 
-        response = send_file(filename, as_attachment=True)
-        os.remove(filename)  # Elimina el archivo después de enviarlo
-        return response
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(filename)
+            except Exception as error:
+                app.logger.error(f"Error al eliminar el archivo: {error}")
+            return response
+
+        return send_file(filename, as_attachment=True)
     except Exception as e:
         return f"Ocurrió un error al descargar el audio: {traceback.format_exc()}", 500
 
