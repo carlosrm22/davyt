@@ -1,2 +1,13 @@
-node_modules
 .env
+# Ignorar el entorno virtual
+env/
+
+# Ignorar archivos de medios generados
+*.mp4
+*.mkv
+*.mp3
+
+# Ignorar otros archivos temporales
+__pycache__/
+*.pyc
+.DS_Store
