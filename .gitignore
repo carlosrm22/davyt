@@ -2,6 +2,9 @@
 # Ignorar el entorno virtual
 env/
 
+# Ignorar la carpeta de descargas temporales
+downloads/
+
 # Ignorar archivos de medios generados
 *.mp4
 *.mkv

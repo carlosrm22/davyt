@@ -5,6 +5,10 @@ import os
 
 app = Flask(__name__)
 
+# Crear la carpeta de descargas si no existe
+if not os.path.exists('downloads'):
+    os.makedirs('downloads')
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -18,7 +22,7 @@ def download_video():
     try:
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',
-            'outtmpl': 'video.%(ext)s',
+            'outtmpl': 'downloads/video.%(ext)s',  # Descargar en la carpeta 'downloads'
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferredformat': 'mp4',
@@ -26,7 +30,7 @@ def download_video():
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
-            filename = 'video.mp4'  # Asegura que apunte al archivo convertido
+            filename = os.path.join('downloads', 'video.mp4')  # Apuntar al archivo convertido en 'downloads/'
 
         response = send_file(filename, as_attachment=True)
         os.remove(filename)  # Elimina el archivo después de enviarlo
@@ -43,7 +47,7 @@ def download_audio():
     try:
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': 'audio.%(ext)s',
+            'outtmpl': 'downloads/audio.%(ext)s',  # Descargar en la carpeta 'downloads'
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -52,7 +56,7 @@ def download_audio():
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
-            filename = 'audio.mp3'  # Asegura que apunte al archivo convertido
+            filename = os.path.join('downloads', 'audio.mp3')  # Apuntar al archivo convertido en 'downloads/'
 
         response = send_file(filename, as_attachment=True)
         os.remove(filename)  # Elimina el archivo después de enviarlo
