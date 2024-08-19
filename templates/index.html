@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcriptor de Videos de YouTube</title>
+</head>
+<body>
+    <h1>Davyt</h1>
+    <p>Davyt es el acrónimo de Descarga Audio y Video de YouTube</p>
+    <form action="/download_video" method="post">
+        <input type="text" name="video_url" placeholder="Introduce la URL del video de YouTube" required>
+        <button type="submit">Descargar Video</button>
+    </form>
+    <form action="/download_audio" method="post">
+        <input type="text" name="video_url" placeholder="Introduce la URL del video de YouTube" required>
+        <button type="submit">Descargar Audio</button>
+    </form>
+    <form action="/transcribe_audio" method="post">
+        <input type="text" name="video_url" placeholder="Introduce la URL del video de YouTube" required>
+        <button type="submit">Transcribir Audio</button>
+    </form>
+</body>
+</html>
