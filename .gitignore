@@ -1,6 +1,7 @@
 .env
 # Ignorar el entorno virtual
 env/
+.venv/
 
 # Ignorar la carpeta de descargas temporales
 downloads/
