@@ -1,62 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YouTube me la pelafustán</title>
     <!-- Incluir Bootstrap desde la CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
     <style>
-        .custom-card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .custom-image {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
+      .custom-card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .custom-image {
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Davyt</h1>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="custom-card p-4">
-                    <p>Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar videos o extraer el audio de cualquier video de YouTube, también puedes traducir, transcribir y resumir cualquier video. Simplemente introduce la URL del video a continuación y elige la acción que deseas realizar.</p>
-                    <p> Úsalo con prodencia y no me lo andes compartiendo porque cada transcripción me cuesta una lana. Gracias.</p>
-                    <div class="text-center fst-italic">
-                    <p>Te quiere mucho:</p><p> El Calos Ponchito Develper Neo-Matrix "nada es real todo está permitido"</p>
-                    </div>
-                    <form action="" method="post" id="youtube-form">
-                        <div class="mb-3">
-                            <label for="video_url" class="form-label text-center fw-bold">Introduce la URL del video de YouTube</label>
-                            <input type="url" class="form-control" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." required>
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <button class="btn btn-primary me-md-2" formaction="/download_video" type="submit">Descargar Video</button>
-                            <button class="btn btn-success me-md-2" formaction="/download_audio" type="submit">Descargar Audio</button>
-                        </div>
-                    </form>
-                </div>
-                    <img src="/static/images/planck.jpg" alt="YouTube Tools" class="custom-image shadow-lg">
+      <h1 class="text-center mb-4">Davyt</h1>
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="custom-card p-4">
+            <p
+              >Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar
+              videos o extraer el audio de cualquier video de YouTube, también
+              puedes traducir, transcribir y resumir cualquier video.
+              Simplemente introduce la URL del video a continuación y elige la
+              acción que deseas realizar.</p
+            >
+            <p>
+              Úsalo con prodencia y no me lo andes compartiendo porque cada
+              transcripción me cuesta una lana. Gracias.</p
+            >
+            <div class="text-center fst-italic">
+              <p>Te quiere mucho:</p
+              ><p>
+                El Calos Ponchito Develper Neo-Matrix "nada es real todo está
+                permitido"</p
+              >
             </div>
-            <div class="container mt-5">
-    <div class="custom-card p-4">
-        <h2>Documentación de la Aplicación</h2>
-        <p>Esta aplicación Flask te permite descargar videos de YouTube, extraer el audio en formato MP3 y transcribir el audio utilizando la API de OpenAI Whisper. La interfaz está diseñada para ser amigable y fácil de usar, con una única entrada para la URL del video y botones separados para cada acción.</p>
+            <form action="" method="post" id="youtube-form">
+              <div class="mb-3">
+                <label for="video_url" class="form-label text-center fw-bold"
+                  >Introduce la URL del video de YouTube</label
+                >
+                <input
+                  type="url"
+                  class="form-control"
+                  id="video_url"
+                  name="video_url"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  required />
+              </div>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button
+                  class="btn btn-primary me-md-2"
+                  formaction="/download_video"
+                  type="submit"
+                  >Descargar Video</button
+                >
+                <button
+                  class="btn btn-success me-md-2"
+                  formaction="/download_audio"
+                  type="submit"
+                  >Descargar Audio</button
+                >
+                <button class="btn btn-warning" formaction="/transcribe_audio" type="submit">Transcribir</button>
+              </div>
+            </form>
+          </div>
+          <img
+            src="/static/images/planck.jpg"
+            alt="YouTube Tools"
+            class="custom-image shadow-lg" />
+        </div>
+        <div class="container mt-5">
+          <div class="custom-card p-4">
+            <h2>Documentación de la Aplicación</h2>
+            <p
+              >Esta aplicación Flask te permite descargar videos de YouTube,
+              extraer el audio en formato MP3 y transcribir el audio utilizando
+              la API de OpenAI Whisper. La interfaz está diseñada para ser
+              amigable y fácil de usar, con una única entrada para la URL del
+              video y botones separados para cada acción.</p
+            >
 
-        <h3>Características</h3>
-        <ul>
-            <li><strong>Descargar Videos:</strong> Permite descargar el video completo de YouTube en el mejor formato disponible.</li>
-            <li><strong>Descargar Audio:</strong> Extrae y descarga solo el audio del video en formato MP3.</li>
-            <li><strong>Transcribir Audio:</strong> Utiliza la API de OpenAI Whisper para transcribir el audio descargado del video.</li>
-        </ul>
+            <h3>Características</h3>
+            <ul>
+              <li
+                ><strong>Descargar Videos:</strong> Permite descargar el video
+                completo de YouTube en el mejor formato disponible.</li
+              >
+              <li
+                ><strong>Descargar Audio:</strong> Extrae y descarga solo el
+                audio del video en formato MP3.</li
+              >
+              <li
+                ><strong>Transcribir Audio:</strong> Utiliza la API de OpenAI
+                Whisper para transcribir el audio descargado del video.</li
+              >
+            </ul>
 
-        <h3>Estructura del Proyecto</h3>
-        <pre><code>
+            <h3>Estructura del Proyecto</h3>
+            <pre><code>
 /static
     /images
         itinnitus-20171130-0005.jpg  # Imagen usada en la interfaz
@@ -72,74 +124,136 @@ requirements.txt  # Dependencias del proyecto
 README.md  # Documentación del proyecto
         </code></pre>
 
-        <h3>Configuración del Entorno</h3>
-        <h4>Requisitos Previos</h4>
-        <ul>
-            <li>Python 3.6 o superior</li>
-            <li>pip (gestor de paquetes de Python)</li>
-            <li>ffmpeg (para la conversión de formatos de audio/video)</li>
-        </ul>
+            <h3>Configuración del Entorno</h3>
+            <h4>Requisitos Previos</h4>
+            <ul>
+              <li>Python 3.6 o superior</li>
+              <li>pip (gestor de paquetes de Python)</li>
+              <li>ffmpeg (para la conversión de formatos de audio/video)</li>
+            </ul>
 
-        <h4>Instalación</h4>
-        <ol>
-            <li><strong>Clonar el repositorio:</strong>
+            <h4>Instalación</h4>
+            <ol>
+              <li
+                ><strong>Clonar el repositorio:</strong>
                 <pre><code>git clone https://github.com/tu-usuario/descargar-audio-yt.git
 cd descargar-audio-yt</code></pre>
-            </li>
-            <li><strong>Crear y activar un entorno virtual:</strong>
+              </li>
+              <li
+                ><strong>Crear y activar un entorno virtual:</strong>
                 <pre><code>python -m venv env
 source env/bin/activate  # En Windows, usa `env\Scripts\activate`</code></pre>
-            </li>
-            <li><strong>Instalar las dependencias:</strong>
+              </li>
+              <li
+                ><strong>Instalar las dependencias:</strong>
                 <pre><code>pip install -r requirements.txt</code></pre>
-            </li>
-            <li><strong>Asegurarse de que `ffmpeg` esté instalado:</strong>
-                <p>Si `ffmpeg` no está instalado en tu sistema, puedes instalarlo con:</p>
+              </li>
+              <li
+                ><strong>Asegurarse de que `ffmpeg` esté instalado:</strong>
+                <p
+                  >Si `ffmpeg` no está instalado en tu sistema, puedes
+                  instalarlo con:</p
+                >
                 <ul>
-                    <li><strong>En Windows:</strong> Puedes descargar el ejecutable desde <a href="https://ffmpeg.org/download.html" target="_blank">ffmpeg.org</a> y agregarlo a tu PATH.</li>
-                    <li><strong>En macOS:</strong> Usando Homebrew: <code>brew install ffmpeg</code></li>
-                    <li><strong>En Linux:</strong> Usando el gestor de paquetes de tu distribución, por ejemplo: <code>sudo apt-get install ffmpeg</code></li>
+                  <li
+                    ><strong>En Windows:</strong> Puedes descargar el ejecutable
+                    desde
+                    <a href="https://ffmpeg.org/download.html" target="_blank"
+                      >ffmpeg.org</a
+                    >
+                    y agregarlo a tu PATH.</li
+                  >
+                  <li
+                    ><strong>En macOS:</strong> Usando Homebrew:
+                    <code>brew install ffmpeg</code></li
+                  >
+                  <li
+                    ><strong>En Linux:</strong> Usando el gestor de paquetes de
+                    tu distribución, por ejemplo:
+                    <code>sudo apt-get install ffmpeg</code></li
+                  >
                 </ul>
-            </li>
-        </ol>
+              </li>
+            </ol>
 
-        <h3>Uso de la Aplicación</h3>
-        <ol>
-            <li><strong>Ejecutar la aplicación:</strong>
+            <h3>Uso de la Aplicación</h3>
+            <ol>
+              <li
+                ><strong>Ejecutar la aplicación:</strong>
                 <pre><code>python app.py</code></pre>
-            </li>
-            <li><strong>Acceder a la aplicación:</strong>
-                <p>Abre tu navegador y dirígete a <a href="http://127.0.0.1:5000" target="_blank">http://127.0.0.1:5000</a>.</p>
-            </li>
-            <li><strong>Interfaz de Usuario:</strong>
+              </li>
+              <li
+                ><strong>Acceder a la aplicación:</strong>
+                <p
+                  >Abre tu navegador y dirígete a
+                  <a href="http://127.0.0.1:5000" target="_blank"
+                    >http://127.0.0.1:5000</a
+                  >.</p
+                >
+              </li>
+              <li
+                ><strong>Interfaz de Usuario:</strong>
                 <ul>
-                    <li>Introduce la URL del video de YouTube en el campo correspondiente.</li>
-                    <li>Haz clic en <strong>Descargar Video</strong> para descargar el video completo.</li>
-                    <li>Haz clic en <strong>Descargar Audio</strong> para descargar solo el audio en formato MP3.</li>
+                  <li
+                    >Introduce la URL del video de YouTube en el campo
+                    correspondiente.</li
+                  >
+                  <li
+                    >Haz clic en <strong>Descargar Video</strong> para descargar
+                    el video completo.</li
+                  >
+                  <li
+                    >Haz clic en <strong>Descargar Audio</strong> para descargar
+                    solo el audio en formato MP3.</li
+                  >
                 </ul>
-            </li>
-        </ol>
+              </li>
+            </ol>
 
-        <h3>Detalles Técnicos</h3>
-        <p><strong>Archivos y Funcionalidad:</strong></p>
-        <ul>
-            <li><strong>app.py:</strong> Maneja las rutas principales para la interfaz de usuario (<code>/</code>), descarga de videos (<code>/download_video</code>), y descarga de audios (<code>/download_audio</code>). Utiliza <code>yt-dlp</code> para manejar la descarga y conversión de los videos. Los archivos se descargan temporalmente en la carpeta <code>downloads</code>, se envían al cliente, y luego se eliminan automáticamente.</li>
-            <li><strong>index.html:</strong> Utiliza Bootstrap para ofrecer una interfaz de usuario moderna y responsiva. Contiene un formulario simple donde los usuarios ingresan la URL de YouTube y eligen la acción deseada.</li>
-            <li><strong>static/:</strong> Contiene la imagen que se muestra en la interfaz de usuario. Otros archivos estáticos (CSS, JS) también podrían almacenarse aquí si decides personalizar más la interfaz.</li>
-        </ul>
+            <h3>Detalles Técnicos</h3>
+            <p><strong>Archivos y Funcionalidad:</strong></p>
+            <ul>
+              <li
+                ><strong>app.py:</strong> Maneja las rutas principales para la
+                interfaz de usuario (<code>/</code>), descarga de videos
+                (<code>/download_video</code>), y descarga de audios
+                (<code>/download_audio</code>). Utiliza <code>yt-dlp</code> para
+                manejar la descarga y conversión de los videos. Los archivos se
+                descargan temporalmente en la carpeta <code>downloads</code>, se
+                envían al cliente, y luego se eliminan automáticamente.</li
+              >
+              <li
+                ><strong>index.html:</strong> Utiliza Bootstrap para ofrecer una
+                interfaz de usuario moderna y responsiva. Contiene un formulario
+                simple donde los usuarios ingresan la URL de YouTube y eligen la
+                acción deseada.</li
+              >
+              <li
+                ><strong>static/:</strong> Contiene la imagen que se muestra en
+                la interfaz de usuario. Otros archivos estáticos (CSS, JS)
+                también podrían almacenarse aquí si decides personalizar más la
+                interfaz.</li
+              >
+            </ul>
 
-        <h3>Contribuciones</h3>
-        <p>¡Las contribuciones son bienvenidas! Si tienes alguna mejora o encuentras un error, por favor abre un issue o envía un pull request.</p>
+            <h3>Contribuciones</h3>
+            <p
+              >¡Las contribuciones son bienvenidas! Si tienes alguna mejora o
+              encuentras un error, por favor abre un issue o envía un pull
+              request.</p
+            >
 
-        <h3>Licencia</h3>
-        <p>Este proyecto está bajo la Licencia MIT. Consulta el archivo <code>LICENSE</code> para más detalles.</p>
-    </div>
-</div>
-
+            <h3>Licencia</h3>
+            <p
+              >Este proyecto está bajo la Licencia MIT. Consulta el archivo
+              <code>LICENSE</code> para más detalles.</p
+            >
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Incluir JavaScript de Bootstrap desde la CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>
