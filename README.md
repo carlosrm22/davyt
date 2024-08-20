@@ -1,8 +1,13 @@
 # Davyt
+Davyt es el acrónimo de:
+
+**D**escarga **A**udio y **V**ideo de **Y**ou**T**ube
+
 Es un proyecto personal para descargar audio y video de Youtube
 y generar transcripciones con Whisper de Open Ai
 
-¡Por supuesto! Tener una buena documentación es esencial para que cualquier proyecto sea fácil de mantener y entender por otros desarrolladores (o por ti mismo en el futuro). A continuación te proporcionaré una documentación detallada que puedes incluir en tu archivo `README.md`.
+Creado por *Carlos Romero*.
+
 
 ---
 
