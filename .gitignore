@@ -14,3 +14,6 @@ downloads/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Ignorar archivos temporales
+Usercontaenv_temp
