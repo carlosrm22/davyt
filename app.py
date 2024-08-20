@@ -116,24 +116,24 @@ def transcribe_audio():
                 file=audio_file
             )
             transcript_text = response.text
-            # Verificar si existe el atributo language, si no usar un valor por defecto
-            language_detected = getattr(response, 'language', 'unknown')
+            language_detected = getattr(response, 'language', 'unknown')  # Obtener el idioma detectado
 
-        # Opcional: traducción y resumen (puedes ajustar esto según sea necesario)
-        if language_detected != 'es':  # Ajuste básico para verificar el idioma
+        translated_text = transcript_text
+
+        # Traducción solo si el idioma no es español
+        if language_detected != 'es':
             translation_response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "Eres un traductor muy hábil."},
                     {"role": "user", "content": f"Traduce el siguiente texto al español:\n\n{transcript_text}"}
                 ]
             )
             translated_text = translation_response.choices[0].message.content.strip()
-        else:
-            translated_text = transcript_text
 
+        # Generar resumen
         summary_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Eres un asistente que genera resúmenes precisos y concisos."},
                 {"role": "user", "content": f"Resume lo siguiente en español:\n\n{translated_text}"}
@@ -141,21 +141,27 @@ def transcribe_audio():
         )
         summary_text = summary_response.choices[0].message.content.strip()
 
+        # Crear archivo de salida con la transcripción, traducción (si aplica), y resumen
+        output_filename = os.path.join('downloads', f"{os.path.splitext(os.path.basename(filename))[0]}_output.txt")
+        with open(output_filename, "w", encoding="utf-8") as output_file:
+            output_file.write("Resumen:\n")
+            output_file.write(summary_text + "\n\n")
+            output_file.write("Transcripción:\n")
+            output_file.write(translated_text)
+
         # Eliminar el archivo de audio después de procesarlo
         @after_this_request
-        def remove_file(response):
+        def remove_files(response):
             try:
                 os.remove(audio_file_path)
+                os.remove(output_filename)
             except Exception as error:
-                app.logger.error(f"Error al eliminar el archivo: {error}")
+                app.logger.error(f"Error al eliminar los archivos: {error}")
             return response
 
-        # Retornar la transcripción, traducción (si aplica), y resumen
-        return {
-            "transcripción": transcript_text,
-            "traducción": translated_text,
-            "resumen": summary_text
-        }
+        # Retornar el archivo de texto con la transcripción y resumen
+        return send_file(output_filename, as_attachment=True)
+
     except Exception as e:
         app.logger.error(f"Error en la transcripción: {traceback.format_exc()}")
         return f"Ocurrió un error al transcribir el audio: {traceback.format_exc()}", 500
