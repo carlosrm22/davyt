@@ -116,7 +116,7 @@ def download_audio():
         return "URL del video no proporcionada o es inválida", 400
 
     # Notificar al cliente que el proceso ha comenzado
-    sse.publish({"message": "start"}, type='spinner')
+    # sse.publish({"message": "start"}, type='spinner')
 
     try:
         ydl_opts = {
@@ -164,7 +164,7 @@ def transcribe_audio():
         return "URL del video no proporcionada o es inválida", 400
 
     # Notificar al cliente que el proceso ha comenzado
-    sse.publish({"message": "start"}, type='spinner')
+    # sse.publish({"message": "start"}, type='spinner')
 
     try:
         # Descargar el audio usando yt-dlp
