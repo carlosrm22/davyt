@@ -7,8 +7,9 @@ from urllib.parse import urlparse
 # Importaciones de terceros
 from flask import Flask, request, render_template, send_file, after_this_request
 from dotenv import load_dotenv
-from openai import OpenAI
+from flask_sse import sse
 import yt_dlp
+from openai import OpenAI
 
 
 def clean_old_files(directory, max_age=3600):
@@ -30,6 +31,8 @@ def is_valid_url(url):
 load_dotenv()  # Cargar las variables de entorno desde el archivo .env
 
 app = Flask(__name__, static_folder='static')
+app.config["REDIS_URL"] = "redis://localhost:6379/0"
+app.register_blueprint(sse, url_prefix='/stream')
 
 # Inicializar el cliente de OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -67,29 +70,43 @@ def download_video():
     if not video_url or not is_valid_url(video_url):
         return "URL del video no proporcionada o es inválida", 400
 
-    ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegVideoConvertor',
-            'preferedformat': 'mp4',
-        }],
-    }
+    # Notificar al cliente que el proceso ha comenzado
+    sse.publish({"message": "start"}, type='spinner')
 
-    filename = download_media(video_url, ydl_opts, subdir='downloads/videos')
-    if filename is None:
-        return "Ocurrió un error al descargar el video", 500
+    try:
+        ydl_opts = {
+            'format': 'bestvideo+bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegVideoConvertor',
+                'preferedformat': 'mp4',
+            }],
+        }
 
-    filename = filename.replace('.mkv', '.mp4')
+        filename = download_media(
+            video_url, ydl_opts, subdir='downloads/videos')
+        if filename is None:
+            return "Ocurrió un error al descargar el video", 500
 
-    @after_this_request
-    def remove_file(response):
-        try:
-            os.remove(filename)
-        except OSError as error:
-            app.logger.error(f"Error al eliminar el archivo: {error}")
-        return response
+        filename = filename.replace('.mkv', '.mp4')
 
-    return send_file(filename, as_attachment=True)
+        # Notificar al cliente que el proceso ha terminado
+        sse.publish({"message": "end"}, type='spinner')
+
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(filename)
+            except OSError as error:
+                app.logger.error(f"Error al eliminar el archivo: {error}")
+            return response
+
+        return send_file(filename, as_attachment=True)
+
+    except Exception as e:
+        sse.publish({"message": "end"}, type='spinner')
+        app.logger.error(f"Error al descargar el video: {
+                         traceback.format_exc()}")
+        return f"Ocurrió un error al descargar el video: {traceback.format_exc()}", 500
 
 
 @app.route('/download_audio', methods=['POST'])
@@ -98,30 +115,44 @@ def download_audio():
     if not video_url or not is_valid_url(video_url):
         return "URL del video no proporcionada o es inválida", 400
 
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-    }
+    # Notificar al cliente que el proceso ha comenzado
+    sse.publish({"message": "start"}, type='spinner')
 
-    filename = download_media(video_url, ydl_opts, subdir='downloads/audios')
-    if filename is None:
-        return "Ocurrió un error al descargar el audio", 500
+    try:
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
 
-    filename = filename.replace('.webm', '.mp3')
+        filename = download_media(
+            video_url, ydl_opts, subdir='downloads/audios')
+        if filename is None:
+            return "Ocurrió un error al descargar el audio", 500
 
-    @after_this_request
-    def remove_file(response):
-        try:
-            os.remove(filename)
-        except OSError as error:
-            app.logger.error(f"Error al eliminar el archivo: {error}")
-        return response
+        filename = filename.replace('.webm', '.mp3')
 
-    return send_file(filename, as_attachment=True)
+        # Notificar al cliente que el proceso ha terminado
+        sse.publish({"message": "end"}, type='spinner')
+
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(filename)
+            except OSError as error:
+                app.logger.error(f"Error al eliminar el archivo: {error}")
+            return response
+
+        return send_file(filename, as_attachment=True)
+
+    except Exception as e:
+        sse.publish({"message": "end"}, type='spinner')
+        app.logger.error(f"Error al descargar el audio: {
+                         traceback.format_exc()}")
+        return f"Ocurrió un error al descargar el audio: {traceback.format_exc()}", 500
 
 
 @app.route('/transcribe_audio', methods=['POST'])
@@ -131,6 +162,9 @@ def transcribe_audio():
     video_url = request.form['video_url']
     if not video_url or not is_valid_url(video_url):
         return "URL del video no proporcionada o es inválida", 400
+
+    # Notificar al cliente que el proceso ha comenzado
+    sse.publish({"message": "start"}, type='spinner')
 
     try:
         # Descargar el audio usando yt-dlp
@@ -192,13 +226,18 @@ def transcribe_audio():
             output_file.write("Análisis:\n")
             output_file.write(detailed_analysis_text)
 
+        # Notificar al cliente que el proceso ha terminado
+        sse.publish({"message": "end"}, type='spinner')
+
         # Retornar el archivo de texto con la transcripción, resumen y análisis detallado
         return send_file(output_filename, as_attachment=True)
 
     except Exception as e:
+        sse.publish({"message": "end"}, type='spinner')
         app.logger.error(f"Error en la transcripción: {
                          traceback.format_exc()}")
         return f"Ocurrió un error al transcribir el audio: {traceback.format_exc()}", 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

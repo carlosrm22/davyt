@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YouTube me la pelafustán</title>
     <!-- Incluir Bootstrap desde la CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
     <!-- Incluir SpinKit -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/2.0.1/spinkit.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/2.0.1/spinkit.min.css" />
     <style>
-        .custom-card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .custom-image {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
         .spinner-container {
             display: none;
             justify-content: center;
@@ -35,38 +29,78 @@
             text-align: center;
             font-size: 1.2rem;
         }
-        .spinner-container p {
-            margin-top: 20px;
-        }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Davyt</h1>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="custom-card p-4">
-                    <p>Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar videos o extraer el audio de cualquier video de YouTube, también puedes traducir, transcribir y resumir cualquier video. Simplemente introduce la URL del video a continuación y elige la acción que deseas realizar.</p>
-                    <p>Úsalo con prudencia y no me lo andes compartiendo porque cada transcripción me cuesta una lana. Gracias.</p>
-                    <div class="text-center fst-italic">
-                        <p>Te quiere mucho:</p>
-                        <p>El Calos Ponchito Develper Neo-Matrix "nada es real todo está permitido"</p>
-                    </div>
-                    <form action="" method="post" id="youtube-form">
-                        <div class="mb-3">
-                            <label for="video_url" class="form-label text-center fw-bold">Introduce la URL del video de YouTube</label>
-                            <input type="url" class="form-control" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." required />
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <button class="btn btn-primary me-md-2" formaction="/download_video" type="submit">Descargar Video</button>
-                            <button class="btn btn-success me-md-2" formaction="/download_audio" type="submit">Descargar Audio</button>
-                            <button class="btn btn-warning" formaction="/transcribe_audio" type="submit">Transcribir y Analisar</button>
-                        </div>
-                    </form>
+      <h1 class="text-center text-info-emphasis fw-bold mb-4">Davyt - Planck</h1>
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card shadow-lg">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4"
+        >Davyt es el acrónimo de <b>D</b>-escarga <b>A</b>-udio y <b>V</b>-ideo
+        de <b>Y</b>-ou<b>T</b>-ube</h5
+              <p class="card-text"
+                >Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar
+                videos o extraer el audio de cualquier video de YouTube, también
+                puedes traducir, transcribir, resumir, analizar, generar mapas mentales, palabras clave y preguntas de estudio sobre cualquier video.</p>
+                <p>Simplemente introduce la URL del video a continuación y elige la
+                acción que deseas realizar.</p>
+              <p class="fw-semibold">
+                Úsalo con prudencia y no me lo andes compartiendo porque cada
+                transcripción me cuesta una lana. Gracias.</p
+              >
+              <div class="text-center fst-italic mb-3">
+                <p>Te quiere mucho:</p>
+                <p
+                  >El Calos Ponchito Develper Neo-Matrix <br />"Nada es real todo está
+                  permitido"</p
+                >
+              </div>
+
+              <form action="" method="post" id="youtube-form">
+                <div class="mb-3">
+                  <label for="video_url" class="form-label fw-bold"
+                    >Introduce la URL del video de YouTube:</label
+                  >
+                  <input
+                    type="url"
+                    class="form-control"
+                    id="video_url"
+                    name="video_url"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    required />
                 </div>
-                <img src="/static/images/planck.jpg" alt="YouTube Tools" class="custom-image shadow-lg" />
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                  <button
+                    class="btn btn-primary me-md-2"
+                    formaction="/download_video"
+                    type="submit"
+                    >Descargar Video</button
+                  >
+                  <button
+                    class="btn btn-success me-md-2"
+                    formaction="/download_audio"
+                    type="submit"
+                    >Descargar Audio</button
+                  >
+                  <button
+                    class="btn btn-warning"
+                    formaction="/transcribe_audio"
+                    type="submit"
+                    >Transcribir y Analizar</button
+                  >
+                </div>
+              </form>
             </div>
         </div>
+            <img
+              src="/static/images/planck.jpg"
+              alt="YouTube Tools"
+              class="img-fluid rounded mt-4 shadow-lg" />
+        </div>
+      </div>
     </div>
 
     <!-- Spinner de carga con leyenda -->
@@ -85,24 +119,26 @@
             <div class="sk-circle11 sk-child"></div>
             <div class="sk-circle12 sk-child"></div>
         </div>
-        <p>Trabajando... Ten paciencia, soy nuevo en esto, es mi primer día. Esto puede tardar un poco.</p>
+      <p
+        >Trabajando... Ten paciencia, soy nuevo en esto, es mi primer día. Esto
+        puede tardar un poco.</p
+      >
     </div>
 
     <!-- Incluir JavaScript de Bootstrap y el controlador del formulario -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const form = document.getElementById('youtube-form');
-        const spinner = document.getElementById('spinner');
+      const eventSource = new EventSource("/stream");
 
-        form.addEventListener('submit', function() {
-            spinner.style.display = 'flex'; // Mostrar el spinner
+        eventSource.addEventListener("spinner", function(event) {
+            const data = JSON.parse(event.data);
+            const spinner = document.getElementById('spinner');
+            if (data.message === "start") {
+                spinner.style.display = 'flex';
+            } else if (data.message === "end") {
+                spinner.style.display = 'none';
+            }
         });
-
-        window.onload = function() {
-            spinner.style.display = 'none'; // Ocultar el spinner al cargar la página
-        }
     </script>
-
-
-</body>
+  </body>
 </html>
