@@ -1,9 +1,13 @@
-from flask import Flask, request, render_template, send_file, after_this_request
+from flask import Flask, request, render_template, send_file, send_from_directory, after_this_request
 import yt_dlp
 import traceback
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(app.static_folder, filename)
 
 # Crear la carpeta de descargas si no existe
 if not os.path.exists('downloads'):
@@ -22,7 +26,7 @@ def download_video():
     try:
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',
-            'outtmpl': 'downloads/video.%(ext)s',
+            'outtmpl': 'downloads/%(title)s.%(ext)s',  # Usa el título del video como nombre de archivo
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # Asegúrate de usar la ortografía correcta
@@ -30,7 +34,7 @@ def download_video():
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
-            filename = os.path.join('downloads', 'video.mp4')  # Apuntar al archivo convertido en 'downloads/'
+            filename = ydl.prepare_filename(info_dict).replace('.mkv', '.mp4')  # Reemplazar la extensión si es necesario
 
         @after_this_request
         def remove_file(response):
@@ -53,7 +57,7 @@ def download_audio():
     try:
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': 'downloads/audio.%(ext)s',
+            'outtmpl': 'downloads/%(title)s.%(ext)s',  # Usa el título del video como nombre de archivo
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -62,7 +66,7 @@ def download_audio():
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
-            filename = os.path.join('downloads', 'audio.mp3')  # Apuntar al archivo convertido en 'downloads/'
+            filename = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')  # Reemplazar la extensión si es necesario
 
         @after_this_request
         def remove_file(response):
