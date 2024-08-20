@@ -1,9 +1,16 @@
 from flask import Flask, request, render_template, send_file, send_from_directory, after_this_request
 import yt_dlp
+import openai
 import traceback
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Cargar las variables de entorno desde el archivo .env
 
 app = Flask(__name__, static_folder='static')
+
+# Configurar la API Key de OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
