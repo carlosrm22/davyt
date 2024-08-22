@@ -12,7 +12,7 @@ import yt_dlp
 from openai import OpenAI
 
 
-def clean_old_files(directory, max_age=3600):
+def clean_old_files(directory, max_age=600):
     current_time = time.time()
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)

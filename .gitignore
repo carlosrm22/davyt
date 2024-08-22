@@ -18,4 +18,5 @@ __pycache__/
 .DS_Store
 
 # Ignorar archivos temporales
+Usercontaenv_temp/
 Usercontaenv_temp
