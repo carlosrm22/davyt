@@ -104,8 +104,7 @@ def download_video():
 
     except Exception as e:
         sse.publish({"message": "end"}, type='spinner')
-        app.logger.error(f"Error al descargar el video: {
-                         traceback.format_exc()}")
+        app.logger.error(f"Error al descargar el video: {traceback.format_exc()}")
         return f"Ocurrió un error al descargar el video: {traceback.format_exc()}", 500
 
 
@@ -150,8 +149,7 @@ def download_audio():
 
     except Exception as e:
         sse.publish({"message": "end"}, type='spinner')
-        app.logger.error(f"Error al descargar el audio: {
-                         traceback.format_exc()}")
+        app.logger.error(f"Error al descargar el audio: {traceback.format_exc()}")
         return f"Ocurrió un error al descargar el audio: {traceback.format_exc()}", 500
 
 
@@ -208,8 +206,7 @@ def transcribe_audio():
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Separar los temas principales abordados en la transcripción. Utilizar recursos mnemotécnicos para ayudar a los estudiantes a recordar los conceptos clave. Incluir esquemas que faciliten la comprensión visual de los temas tratados. Destacar las palabras clave importantes en cada sección del resumen. Proporcionar recomendaciones para la mejor comprensión y estudio de los temas. Hacer un mapa mental del tema. Entender los Conceptos Clave. Autoevaluación. Referencias bibliográficas y recursos externos. Todo esto presentado en texto plano."},
-                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{
-                    transcript_text}"}
+                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{transcript_text}"}
             ]
         )
         detailed_analysis_text = detailed_analysis_response.choices[0].message.content.strip(
