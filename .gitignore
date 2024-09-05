@@ -1,5 +1,6 @@
 .env
 .venv
+venv
 # Ignorar el entorno virtual
 env/
 .venv/
