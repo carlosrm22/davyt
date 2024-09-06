@@ -1,22 +1,20 @@
-# Importaciones estándar de Python
 import os
 import traceback
+import threading
 import time
 from urllib.parse import urlparse
+import logging
 
-# Importaciones de terceros
-from flask import Flask, request, render_template, send_file, after_this_request
+from flask import Flask, request, render_template, send_file, jsonify
 from dotenv import load_dotenv
 import yt_dlp
 from openai import OpenAI
 
-# Cargar variables de entorno
-load_dotenv()
-
-# Configuración de la aplicación Flask
 app = Flask(__name__, static_folder='static')
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Inicializar el cliente de OpenAI
+load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Crear las carpetas de descargas si no existen
@@ -24,15 +22,12 @@ os.makedirs('downloads/videos', exist_ok=True)
 os.makedirs('downloads/audios', exist_ok=True)
 os.makedirs('downloads/outputs', exist_ok=True)
 
-# Función para verificar URLs
 
-
-def validate_url(url):
-    if not url or not is_valid_url(url):
-        return False, "URL del video no proporcionada o es inválida", 400
+def validate_youtube_url(url):
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in ('http', 'https'):
+        return False, "La URL debe comenzar con http:// o https://.", 400
     return True, None, None
-
-# Función para limpiar las descargas después de 10 minutos
 
 
 def clean_old_files(directory, max_age=600):
@@ -40,52 +35,38 @@ def clean_old_files(directory, max_age=600):
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
         if os.stat(file_path).st_mtime < current_time - max_age:
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+                logger.info(f"Archivo eliminado: {file_path}")
+            except OSError as error:
+                logger.error(f"Error al eliminar el archivo {
+                             file_path}: {error}")
 
 
-def is_valid_url(url):
+def download_media(video_url, ydl_opts, filename):
+    """
+    Descarga un archivo de video o audio usando yt-dlp con las opciones dadas y nombre fijo.
+
+    Args:
+        video_url (str): La URL del video de YouTube a descargar.
+        ydl_opts (dict): Opciones de configuración para yt-dlp.
+        filename (str): El nombre fijo del archivo a guardar.
+
+    Returns:
+        str: El nombre del archivo descargado si tiene éxito, o None si falla.
+    """
     try:
-        result = urlparse(url)
-        return all([result.scheme, result.netloc])
-    except ValueError:
-        return False
-
-# Función para manejar la descarga y conversión de media
-
-
-def download_media(video_url, ydl_opts, subdir='downloads'):
-    ydl_opts['outtmpl'] = f'{subdir}/%(title)s.%(ext)s'
-    ydl_opts['cookiesfrombrowser'] = ('chrome', 'firefox', 'safari', 'edge',)
-    try:
+        # Define la plantilla de salida para usar un nombre de archivo fijo
+        ydl_opts['outtmpl'] = filename
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info_dict)
-            return filename
-    except Exception:
-        app.logger.error(f"Error al descargar media: {traceback.format_exc()}")
+            ydl.extract_info(video_url, download=True)
+        return filename
+    except yt_dlp.utils.DownloadError:
+        logger.error(f"Error de descarga con yt-dlp: {traceback.format_exc()}")
         return None
-
-
-def handle_download(video_url, ydl_opts, subdir, output_format=None):
-    filename = download_media(video_url, ydl_opts, subdir)
-    if filename is None:
-        return False, "Ocurrió un error al descargar el archivo", 500
-
-    if output_format and filename.endswith('.mkv'):
-        filename = filename.replace('.mkv', f'.{output_format}')
-    return True, filename, None
-
-# Uso de decoradores para manejar eventos de limpieza
-
-
-def remove_file_after_request(filename):
-    @after_this_request
-    def remove_file(response):
-        try:
-            os.remove(filename)
-        except OSError as error:
-            app.logger.error(f"Error al eliminar el archivo: {error}")
-        return response
+    except Exception:
+        logger.error(f"Error al descargar media: {traceback.format_exc()}")
+        return None
 
 
 @app.route('/')
@@ -95,35 +76,47 @@ def index():
 
 @app.route('/download_video', methods=['POST'])
 def download_video():
-    video_url = request.form['video_url']
-    valid, message, status = validate_url(video_url)
+    video_url = request.form.get('video_url')
+    valid, message, status = validate_youtube_url(video_url)
     if not valid:
-        return message, status
+        return jsonify({"error": message}), status
 
+    # Nombre fijo para los videos
+    filename = os.path.join(
+        'downloads/videos', 'Davit_Planck_Video_Descargado.mp4')
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegVideoConvertor',
             'preferedformat': 'mp4',
         }],
+        'merge_output_format': 'mp4',
     }
 
-    success, filename, error = handle_download(
-        video_url, ydl_opts, 'downloads/videos', 'mp4')
-    if not success:
-        return error
+    result = download_media(video_url, ydl_opts, filename)
+    if not result:
+        logger.error(
+            f"Error en /download_video: No se pudo descargar el video.")
+        return jsonify({"error": "Error al descargar el video."}), 500
 
-    remove_file_after_request(filename)
-    return send_file(filename, as_attachment=True, download_name=os.path.basename(filename))
+    # Verifica y asegura que el archivo existe antes de enviarlo
+    if not os.path.exists(filename):
+        logger.error(f"Archivo no encontrado para enviar: {filename}")
+        return jsonify({"error": "Archivo no encontrado después de la descarga."}), 500
+
+    return send_file(filename, as_attachment=True)
 
 
 @app.route('/download_audio', methods=['POST'])
 def download_audio():
-    video_url = request.form['video_url']
-    valid, message, status = validate_url(video_url)
+    video_url = request.form.get('video_url')
+    valid, message, status = validate_youtube_url(video_url)
     if not valid:
-        return message, status
+        return jsonify({"error": message}), status
 
+    # Nombre fijo para los audios
+    filename = os.path.join(
+        'downloads/audios', 'Davit_Planck_Audio_Descargado.mp3')
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -132,34 +125,38 @@ def download_audio():
             'preferredquality': '192',
         }],
         'keepvideo': True,
-        'outtmpl': 'downloads/audios/%(title)s.%(ext)s',
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         },
         'verbose': True,
         'ignoreerrors': True,
         'nocheckcertificate': True,
-        'cookiesfrombrowser': ('chrome', 'firefox', 'safari', 'edge',),
     }
 
-    success, filename, error = handle_download(
-        video_url, ydl_opts, 'downloads/audios', 'mp3')
-    if not success:
-        return error
+    result = download_media(video_url, ydl_opts, filename)
+    if not result:
+        logger.error(
+            f"Error en /download_audio: No se pudo descargar el audio.")
+        return jsonify({"error": "Error al descargar el audio."}), 500
 
-    remove_file_after_request(filename)
-    return send_file(filename, as_attachment=True, download_name=os.path.basename(filename))
+    if not os.path.exists(filename):
+        logger.error(f"Archivo no encontrado para enviar: {filename}")
+        return jsonify({"error": "Archivo no encontrado después de la descarga."}), 500
+
+    return send_file(filename, as_attachment=True)
 
 
 @app.route('/transcribe_audio', methods=['POST'])
 def transcribe_audio():
-    video_url = request.form['video_url']
-    valid, message, status = validate_url(video_url)
+    video_url = request.form.get('video_url')
+    valid, message, status = validate_youtube_url(video_url)
     if not valid:
-        return message, status
+        return jsonify({"error": message}), status
 
     try:
         # Descargar el audio usando yt-dlp
+        filename = os.path.join(
+            'downloads/audios', 'Davit_Planck_Audio_Descargado.mp3')
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -168,16 +165,11 @@ def transcribe_audio():
                 'preferredquality': '192',
             }],
             'keepvideo': True,
-            'outtmpl': 'downloads/audios/%(title)s.%(ext)s',
-            'cookiesfrombrowser': ('chrome', 'firefox', 'safari', 'edge',),
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')
+        download_media(video_url, ydl_opts, filename)
 
-        # Transcripción del audio con OpenAI Whisper usando la nueva API
-        audio_file_path = filename
-        with open(audio_file_path, "rb") as audio_file:
+        # Transcripción del audio con OpenAI Whisper
+        with open(filename, "rb") as audio_file:
             response = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file
@@ -199,15 +191,16 @@ def transcribe_audio():
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Separar los temas principales abordados en la transcripción. Utilizar recursos mnemotécnicos para ayudar a los estudiantes a recordar los conceptos clave. Incluir esquemas que faciliten la comprensión visual de los temas tratados. Destacar las palabras clave importantes en cada sección del resumen. Proporcionar recomendaciones para la mejor comprensión y estudio de los temas. Hacer un mapa mental del tema. Entender los Conceptos Clave. Autoevaluación. Referencias bibliográficas y recursos externos. Todo esto presentado en texto plano."},
-                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{transcript_text}"}
+                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{
+                    transcript_text}"}
             ]
         )
         detailed_analysis_text = detailed_analysis_response.choices[0].message.content.strip(
         )
 
-        # Crear archivo de salida con la transcripción, resumen y análisis detallado
+        # Nombre fijo para la transcripción
         output_filename = os.path.join(
-            'downloads/outputs', f"{os.path.splitext(os.path.basename(filename))[0]}_output.txt")
+            'downloads/outputs', 'Davit_Planck_Transcripcion_Descargada.txt')
         with open(output_filename, "w", encoding="utf-8") as output_file:
             output_file.write("Resumen:\n")
             output_file.write(summary_text + "\n\n")
@@ -216,13 +209,27 @@ def transcribe_audio():
             output_file.write("Análisis:\n")
             output_file.write(detailed_analysis_text)
 
-        remove_file_after_request(output_filename)
-        return send_file(output_filename, as_attachment=True, download_name=os.path.basename(output_filename))
+        return send_file(output_filename, as_attachment=True)
 
-    except Exception:
-        app.logger.error(f"Error en la transcripción: {traceback.format_exc()}")
-        return f"Ocurrió un error al transcribir el audio: {traceback.format_exc()}", 500
+    except Exception as e:
+        logger.error(f"Error en la transcripción: {traceback.format_exc()}")
+        return jsonify({"error": f"Ocurrió un error al transcribir el audio: {str(e)}"}), 500
+
+# Función para ejecutar la limpieza de archivos antiguos periódicamente
+def start_cleanup():
+    while True:
+        clean_old_files('downloads/videos')
+        clean_old_files('downloads/audios')
+        clean_old_files('downloads/outputs')
+        time.sleep(600)  # Espera 10 minutos antes de limpiar de nuevo
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Inicia el hilo para la limpieza automática de archivos antiguos
+    cleanup_thread = threading.Thread(target=start_cleanup)
+    # Hilo daemon para que se cierre con la aplicación principal
+    cleanup_thread.daemon = True
+    cleanup_thread.start()
+
+    # Inicia el servidor Flask
+    app.run(debug=False)

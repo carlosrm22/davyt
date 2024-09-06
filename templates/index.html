@@ -24,6 +24,14 @@
         text-align: center;
         font-size: 1.2rem;
       }
+
+        .alert-message {
+        display: none;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1100;
+      }
     </style>
   </head>
   <body>
@@ -103,13 +111,26 @@
       </div>
     </div>
 
-    <!-- Spinner de carga con leyenda -->
+   <!-- Spinner de carga con leyenda -->
     <div id="spinner" class="spinner-container">
       <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p>Trabajando... Ten paciencia, soy nuevo en esto, es mi primer día. Esto
         puede tardar un poco.</p>
+    </div>
+
+    <!-- Alertas para mensajes de éxito o error -->
+    <div id="alert-message" class="alert-message">
+      <div class="alert alert-dismissible fade" role="alert">
+        <span id="alert-content"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
     </div>
 
     <!-- Incluir JavaScript de Bootstrap y el controlador del formulario -->
@@ -123,10 +144,20 @@
         document.getElementById("spinner").style.display = "none";
       }
 
+      function showAlert(message, type = "info") {
+        const alertBox = document.getElementById("alert-message");
+        const alertContent = document.getElementById("alert-content");
+        alertContent.textContent = message;
+        alertBox.classList.add(`alert-${type}`, "show");
+        setTimeout(() => {
+          alertBox.classList.remove("show");
+        }, 5000); // Ocultar la alerta después de 5 segundos
+      }
+
       async function fetchData(url, method = "POST") {
         const videoUrl = document.getElementById("video_url").value;
         if (!videoUrl) {
-          alert("Por favor, introduce una URL válida.");
+          showAlert("Por favor, introduce una URL válida.", "warning");
           return;
         }
         showSpinner();
@@ -161,15 +192,22 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
+
+            showAlert("Descarga completada con éxito!", "success");
           } else {
-            // Mostrar mensaje de error detallado del servidor si está disponible
             const errorText = await response.text();
             console.error("Error del servidor:", errorText);
-            alert(`Ocurrió un error al procesar la solicitud: ${errorText}`);
+            showAlert(
+              `Ocurrió un error al procesar la solicitud: ${errorText}`,
+              "danger"
+            );
           }
         } catch (error) {
           console.error("Error al realizar la solicitud:", error);
-          alert("Ocurrió un error al procesar la solicitud.");
+          showAlert(
+            "Ocurrió un error al procesar la solicitud. Intenta nuevamente.",
+            "danger"
+          );
         } finally {
           hideSpinner();
         }

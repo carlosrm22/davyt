@@ -5,6 +5,9 @@ venv
 env/
 .venv/
 
+# Ignorar archivos de configuración de sistema
+Makefile
+
 # Ignorar la carpeta de descargas temporales
 downloads/
 
@@ -21,3 +24,6 @@ __pycache__/
 # Ignorar archivos temporales
 Usercontaenv_temp/
 Usercontaenv_temp
+
+# Ignorar archivos temporales
+.vscode
