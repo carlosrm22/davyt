@@ -1,1 +1,1 @@
-web: gunicorn davit
+web: gunicorn app:app
