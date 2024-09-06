@@ -31,6 +31,13 @@ def validate_youtube_url(url):
 
 
 def clean_old_files(directory, max_age=600):
+    """
+    Elimina archivos en un directorio que tengan más de `max_age` segundos para evitar fugas de memoria.
+
+    Args:
+        directory (str): El directorio donde se encuentran los archivos.
+        max_age (int): La antigüedad máxima permitida de los archivos en segundos.
+    """
     current_time = time.time()
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
@@ -39,8 +46,8 @@ def clean_old_files(directory, max_age=600):
                 os.remove(file_path)
                 logger.info(f"Archivo eliminado: {file_path}")
             except OSError as error:
-                logger.error(f"Error al eliminar el archivo {
-                             file_path}: {error}")
+                # Registro completo del error al eliminar el archivo
+                logger.error(f"Error al eliminar el archivo {file_path}: {error}")
 
 
 def download_media(video_url, ydl_opts, filename):
@@ -191,8 +198,7 @@ def transcribe_audio():
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Separar los temas principales abordados en la transcripción. Utilizar recursos mnemotécnicos para ayudar a los estudiantes a recordar los conceptos clave. Incluir esquemas que faciliten la comprensión visual de los temas tratados. Destacar las palabras clave importantes en cada sección del resumen. Proporcionar recomendaciones para la mejor comprensión y estudio de los temas. Hacer un mapa mental del tema. Entender los Conceptos Clave. Autoevaluación. Referencias bibliográficas y recursos externos. Todo esto presentado en texto plano."},
-                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{
-                    transcript_text}"}
+                {"role": "user", "content": f"A continuación se presenta la transcripción del contenido:\n\n{transcript_text}"}
             ]
         )
         detailed_analysis_text = detailed_analysis_response.choices[0].message.content.strip(
