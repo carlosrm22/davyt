@@ -55,6 +55,7 @@ def is_valid_url(url):
 
 def download_media(video_url, ydl_opts, subdir='downloads'):
     ydl_opts['outtmpl'] = f'{subdir}/%(title)s.%(ext)s'
+    ydl_opts['cookiesfrombrowser'] = ('chrome', 'firefox', 'safari', 'edge',)
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
@@ -113,7 +114,7 @@ def download_video():
         return error
 
     remove_file_after_request(filename)
-    return send_file(filename, as_attachment=True)
+    return send_file(filename, as_attachment=True, download_name=os.path.basename(filename))
 
 
 @app.route('/download_audio', methods=['POST'])
@@ -138,6 +139,7 @@ def download_audio():
         'verbose': True,
         'ignoreerrors': True,
         'nocheckcertificate': True,
+        'cookiesfrombrowser': ('chrome', 'firefox', 'safari', 'edge',),
     }
 
     success, filename, error = handle_download(
@@ -146,7 +148,7 @@ def download_audio():
         return error
 
     remove_file_after_request(filename)
-    return send_file(filename, as_attachment=True)
+    return send_file(filename, as_attachment=True, download_name=os.path.basename(filename))
 
 
 @app.route('/transcribe_audio', methods=['POST'])
@@ -166,7 +168,8 @@ def transcribe_audio():
                 'preferredquality': '192',
             }],
             'keepvideo': True,
-            'outtmpl': 'downloads/audios/%(title)s.%(ext)s'
+            'outtmpl': 'downloads/audios/%(title)s.%(ext)s',
+            'cookiesfrombrowser': ('chrome', 'firefox', 'safari', 'edge',),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(video_url, download=True)
@@ -214,7 +217,7 @@ def transcribe_audio():
             output_file.write(detailed_analysis_text)
 
         remove_file_after_request(output_filename)
-        return send_file(output_filename, as_attachment=True)
+        return send_file(output_filename, as_attachment=True, download_name=os.path.basename(output_filename))
 
     except Exception:
         app.logger.error(f"Error en la transcripción: {traceback.format_exc()}")

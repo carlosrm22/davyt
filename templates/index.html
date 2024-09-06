@@ -28,44 +28,42 @@
   </head>
   <body>
     <div class="container mt-5">
-      <h1 class="text-center text-info-emphasis fw-bold mb-4"
-        >Davyt - Planck</h1
-      >
+      <h1 class="text-center text-info-emphasis fw-bold mb-4">Davyt - Planck</h1>
       <div class="row justify-content-center">
         <div class="col-md-8">
           <div class="card shadow-lg">
             <div class="card-body">
-              <h5 class="card-title text-center mb-4"
-                >Davyt es el acrónimo de <b>D</b>-escarga <b>A</b>-udio y
-                <b>V</b>-ideo de <b>Y</b>-ou<b>T</b>-ube</h5
-              >
-              <p class="card-text"
-                >Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar
+              <h5 class="card-title text-center mb-4">
+                Davyt es el acrónimo de <b>D</b>-escarga <b>A</b>-udio y
+                <b>V</b>-ideo de <b>Y</b>-ou<b>T</b>-ube
+              </h5>
+              <p class="card-text">
+                Este es el descargador 🐶 <b>Planck</b> 🐶, puedes descargar
                 videos o extraer el audio de cualquier video de YouTube, también
                 puedes traducir, transcribir, resumir, analizar, generar mapas
                 mentales, palabras clave y preguntas de estudio sobre cualquier
-                video.</p
-              >
-              <p
-                >Simplemente introduce la URL del video a continuación y elige
-                la acción que deseas realizar.</p
-              >
-              <p class="fw-semibold"
-                >Úsalo con prudencia y no me lo andes compartiendo porque cada
-                transcripción me cuesta una lana. Gracias.</p
-              >
+                video.
+              </p>
+              <p>
+                Simplemente introduce la URL del video a continuación y elige
+                la acción que deseas realizar.
+              </p>
+              <p class="fw-semibold">
+                Úsalo con prudencia y no me lo andes compartiendo porque cada
+                transcripción me cuesta una lana. Gracias.
+              </p>
               <div class="text-center fst-italic mb-3">
                 <p>Te quiere mucho:</p>
-                <p
-                  >El Calos Ponchito Develper Neo-Matrix <br />"Nada es real
-                  todo está permitido"</p
-                >
+                <p>
+                  El Calos Ponchito Develper Neo-Matrix <br />"Nada es real todo
+                  está permitido"
+                </p>
               </div>
               <form id="youtube-form">
                 <div class="mb-3">
-                  <label for="video_url" class="form-label fw-bold"
-                    >Introduce la URL del video de YouTube:</label
-                  >
+                  <label for="video_url" class="form-label fw-bold">
+                    Introduce la URL del video de YouTube:
+                  </label>
                   <input
                     type="url"
                     class="form-control"
@@ -78,21 +76,21 @@
                   <button
                     type="button"
                     class="btn btn-primary me-md-2"
-                    onclick="downloadVideo()"
-                    >Descargar Video</button
-                  >
+                    onclick="downloadVideo()">
+                    Descargar Video
+                  </button>
                   <button
                     type="button"
                     class="btn btn-success me-md-2"
-                    onclick="downloadAudio()"
-                    >Descargar Audio</button
-                  >
+                    onclick="downloadAudio()">
+                    Descargar Audio
+                  </button>
                   <button
                     type="button"
                     class="btn btn-warning"
-                    onclick="transcribeAudio()"
-                    >Transcribir y Analizar</button
-                  >
+                    onclick="transcribeAudio()">
+                    Transcribir y Analizar
+                  </button>
                 </div>
               </form>
             </div>
@@ -110,10 +108,8 @@
       <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-      <p
-        >Trabajando... Ten paciencia, soy nuevo en esto, es mi primer día. Esto
-        puede tardar un poco.</p
-      >
+      <p>Trabajando... Ten paciencia, soy nuevo en esto, es mi primer día. Esto
+        puede tardar un poco.</p>
     </div>
 
     <!-- Incluir JavaScript de Bootstrap y el controlador del formulario -->
@@ -153,6 +149,7 @@
               const matches = filenameRegex.exec(disposition);
               if (matches != null && matches[1]) {
                 filename = matches[1].replace(/['"]/g, ""); // Elimina comillas
+                filename = filename.replace(/[<>:"/\\|?*]+/g, ""); // Elimina caracteres inválidos
               }
             }
 
